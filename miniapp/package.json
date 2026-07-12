@@ -1,0 +1,12 @@
+{
+  "name": "ticket-hunter-miniapp",
+  "version": "1.0.0",
+  "description": "抢票小程序 - 全国文体旅演出票",
+  "main": "app.js",
+  "scripts": {
+    "dev": "echo '请使用微信开发者工具打开 miniapp 目录'"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.0"
+  }
+}

@@ -1,0 +1,24 @@
+<!--pages/verify/verify.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="icon">🛡️</text>
+    <text class="title">实名核验</text>
+    <text class="subtitle">购买市民通票需要完成身份认证</text>
+  </view>
+  <view class="form">
+    <view class="field">
+      <text class="label">真实姓名</text>
+      <input class="input" placeholder="请输入身份证姓名" value="{{realName}}" bindinput="onNameInput" />
+    </view>
+    <view class="field">
+      <text class="label">身份证号</text>
+      <input class="input" type="idcard" placeholder="请输入18位身份证号" value="{{idCard}}" bindinput="onIdInput" maxlength="18" />
+    </view>
+    <view class="notice">
+      ⚠️ 信息仅用于身份核验，核验后仅存储不可逆哈希值，不保留明文
+    </view>
+  </view>
+  <button class="submit-btn {{loading ? 'disabled' : ''}}" bindtap="onSubmit" disabled="{{loading}}">
+    {{loading ? '核验中...' : '提交核验'}}
+  </button>
+</view>

@@ -1,0 +1,123 @@
+<!--pages/show/show.wxml — v2.0 增强版-->
+<view class="container" wx:if="{{show}}">
+  <!-- 封面 -->
+  <image class="hero-poster" src="{{show.poster_url}}" mode="aspectFill" />
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <view class="show-name">{{show.title}}</view>
+    <view class="show-tags">
+      <text class="tag">{{show.category}}</text>
+      <text class="tag">{{show.status === 'on_sale' ? '售票中' : show.status}}</text>
+    </view>
+    <view class="meta-row">📍 {{show.city}} · {{show.venue}}</view>
+    <view class="desc" wx:if="{{show.description}}">{{show.description}}</view>
+  </view>
+
+  <!-- 倒计时卡片 -->
+  <view class="countdown-card" wx:if="{{!saleStarted && countdown.totalSeconds > 0}}">
+    <view class="countdown-title">⏳ 距离开售</view>
+    <view class="countdown-digits">
+      <view class="cd-block">
+        <text class="cd-num">{{countdown.days}}</text>
+        <text class="cd-label">天</text>
+      </view>
+      <text class="cd-sep">:</text>
+      <view class="cd-block">
+        <text class="cd-num">{{countdown.hours < 10 ? '0' + countdown.hours : countdown.hours}}</text>
+        <text class="cd-label">时</text>
+      </view>
+      <text class="cd-sep">:</text>
+      <view class="cd-block">
+        <text class="cd-num">{{countdown.minutes < 10 ? '0' + countdown.minutes : countdown.minutes}}</text>
+        <text class="cd-label">分</text>
+      </view>
+      <text class="cd-sep">:</text>
+      <view class="cd-block">
+        <text class="cd-num">{{countdown.seconds < 10 ? '0' + countdown.seconds : countdown.seconds}}</text>
+        <text class="cd-label">秒</text>
+      </view>
+    </view>
+    <!-- 预检状态提示 -->
+    <view class="preflight-hint" wx:if="{{stage === 'preflighting'}}">
+      <text class="hint-text pulse">🔍 {{stageText}}</text>
+    </view>
+    <view class="preflight-hint" wx:elif="{{stage === 'ready'}}">
+      <text class="hint-text ready">✅ {{stageText}}</text>
+    </view>
+  </view>
+
+  <!-- 已开售标记 -->
+  <view class="countdown-card onsale" wx:elif="{{saleStarted && !saleEnded}}">
+    <view class="countdown-title onsale-title">🔥 正在热售</view>
+  </view>
+
+  <view class="countdown-card ended" wx:elif="{{saleEnded}}">
+    <view class="countdown-title ended-title">⛔ 已结束</view>
+  </view>
+
+  <!-- 场次选择 -->
+  <view class="section" wx:if="{{sessions.length > 1}}">
+    <view class="section-title">选择场次</view>
+    <picker mode="selector" range="{{sessions}}" range-key="start_time" bindchange="onSessionChange">
+      <view class="session-picker">
+        <text>🕐 {{sessions[activeSessionIdx].start_time}}</text>
+        <text class="arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- v1.2: 通票关联场馆 -->
+  <view class="section" wx:if="{{passBundles.length > 0}}">
+    <view class="section-title">🎫 此通票可入场场馆</view>
+    <view class="bundle-list">
+      <view class="bundle-item" wx:for="{{passBundles}}" wx:key="id">
+        <image class="bundle-poster" src="{{item.poster_url}}" mode="aspectFill" />
+        <view class="bundle-info">
+          <text class="bundle-name">{{item.show_title}}</text>
+          <text class="bundle-venue">📍 {{item.venue}}</text>
+          <text class="bundle-visits">🎟️ 最多预约 {{item.max_visits}} 次</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 票种选择 -->
+  <view class="section" wx:if="{{sessions.length > 0}}">
+    <view class="section-title">选择票种 <text class="ws-indicator" wx:if="{{liveStock && Object.keys(liveStock).length > 0}}">🟢 实时</text></view>
+    <view class="ticket-list">
+      <view class="ticket-item {{item.available === 0 ? 'sold-out' : ''}}" wx:for="{{sessions[activeSessionIdx].ticketTypes}}" wx:key="id">
+        <view class="ticket-info">
+          <text class="ticket-name">{{item.name}}</text>
+          <text class="ticket-price">¥{{item.original_price}}</text>
+          <text class="ticket-stock {{item.available <= 20 && item.available > 0 ? 'low-stock' : ''}}">
+            余 {{item.available}} 张
+            <text class="citizen-badge" wx:if="{{item.eligibility && item.eligibility.citizen_only}}">🏛️ 市民专享</text>
+            <text class="citizen-badge open" wx:elif="{{item.eligibility && !item.eligibility.citizen_only}}">🌐 开放购买</text>
+          </text>
+        </view>
+        <view class="qty-control">
+          <button class="qty-btn" data-id="{{item.id}}" bindtap="onDecrease" disabled="{{selectedTickets[item.id] === 0 || item.available === 0}}">−</button>
+          <text class="qty-num">{{selectedTickets[item.id] || 0}}</text>
+          <button class="qty-btn" data-id="{{item.id}}" bindtap="onIncrease" disabled="{{(selectedTickets[item.id] || 0) >= item.available}}">+</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部抢票栏 -->
+  <view class="bottom-bar">
+    <view class="price-total">
+      <text class="total-label">合计</text>
+      <text class="total-amount">¥{{totalPrice}}</text>
+      <text class="stage-tag {{stage}}" wx:if="{{stageText}}">{{stageText}}</text>
+    </view>
+    <button
+      class="snatch-btn {{(snatching || totalPrice === 0 || saleEnded) ? 'disabled' : (saleStarted ? 'active' : 'waiting')}}"
+      bindtap="onSnatch"
+      disabled="{{snatching || totalPrice === 0 || saleEnded}}"
+    >
+      {{snatching ? '抢票中...' : (saleEnded ? '已结束' : (saleStarted ? '🚀 一键抢票' : '⏳ 等待开售'))}}
+    </button>
+  </view>
+</view>

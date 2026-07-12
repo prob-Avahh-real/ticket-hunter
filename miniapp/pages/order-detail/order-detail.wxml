@@ -1,0 +1,42 @@
+<!--pages/order-detail/order-detail.wxml-->
+<view class="container" wx:if="{{order}}">
+  <view class="status-card">
+    <text class="status-icon">
+      {{order.status === 'paid' ? '✅' : order.status === 'pending' ? '⏳' : '❌'}}
+    </text>
+    <text class="status-text">
+      {{order.status === 'paid' ? '支付成功' : order.status === 'pending' ? '等待支付' : '已取消'}}
+    </text>
+  </view>
+
+  <view class="info-card">
+    <view class="info-row">
+      <text class="label">订单编号</text>
+      <text class="value">{{order.id}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">订单金额</text>
+      <text class="value price">¥{{order.total_amount}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">创建时间</text>
+      <text class="value">{{order.created_at}}</text>
+    </view>
+    <view class="info-row" wx:if="{{order.paid_at}}">
+      <text class="label">支付时间</text>
+      <text class="value">{{order.paid_at}}</text>
+    </view>
+  </view>
+
+  <view class="info-card">
+    <view class="card-title">票品明细</view>
+    <view class="item" wx:for="{{items}}" wx:key="id">
+      <text class="item-name">{{item.ticket_name}} × {{item.quantity}}</text>
+      <text class="item-price">¥{{item.unit_price * item.quantity}}</text>
+    </view>
+  </view>
+
+  <button class="pay-btn" wx:if="{{order.status === 'pending'}}" bindtap="onPay">
+    💳 立即支付 ¥{{order.total_amount}}
+  </button>
+</view>

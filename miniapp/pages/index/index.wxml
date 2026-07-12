@@ -1,0 +1,50 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索演出、场馆..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+    <button class="search-btn" bindtap="onSearch">搜索</button>
+  </view>
+
+  <!-- 分类筛选 -->
+  <scroll-view class="category-scroll" scroll-x>
+    <view class="category {{activeCategory === item.value ? 'active' : ''}}"
+          wx:for="{{categories}}" wx:key="value"
+          data-value="{{item.value}}" bindtap="onCategoryChange">
+      {{item.label}}
+    </view>
+  </scroll-view>
+
+  <!-- 城市选择 -->
+  <view class="city-bar">
+    <picker mode="selector" range="{{cities}}" bindchange="onCityChange">
+      <view class="city-picker">
+        <text>{{activeCity || '全国'}}</text>
+        <text class="arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 演出列表 -->
+  <view class="show-list">
+    <view class="show-card" wx:for="{{shows}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapShow">
+      <image class="poster" src="{{item.poster_url}}" mode="aspectFill" lazy-load />
+      <view class="card-info">
+        <view class="show-title">{{item.title}}</view>
+        <view class="show-meta">
+          <text class="show-city">📍 {{item.city}} · {{item.venue}}</text>
+        </view>
+        <view class="show-time">🕐 {{item.start_time}}</view>
+        <view class="card-bottom">
+          <text class="show-category tag">{{item.category}}</text>
+          <text class="sale-time">开售: {{item.sale_start_time}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-more" wx:if="{{loading}}">加载中...</view>
+  <view class="no-more" wx:if="{{!hasMore && shows.length > 0}}">— 没有更多了 —</view>
+  <view class="empty" wx:if="{{!loading && shows.length === 0}}">暂无演出</view>
+</view>

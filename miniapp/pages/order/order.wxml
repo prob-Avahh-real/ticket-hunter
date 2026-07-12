@@ -1,0 +1,33 @@
+<!--pages/order/order.wxml-->
+<view class="container">
+  <!-- 状态筛选 -->
+  <scroll-view class="tab-scroll" scroll-x>
+    <view class="tab {{activeTab === item.value ? 'active' : ''}}"
+          wx:for="{{tabs}}" wx:key="value"
+          data-value="{{item.value}}" bindtap="onTabChange">
+      {{item.label}}
+    </view>
+  </scroll-view>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <view class="order-card" wx:for="{{orders}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapOrder">
+      <image class="order-poster" src="{{item.poster_url}}" mode="aspectFill" />
+      <view class="order-info">
+        <view class="order-title">{{item.show_title}}</view>
+        <view class="order-meta">🕐 {{item.start_time}}</view>
+        <view class="order-meta">📍 {{item.venue}}</view>
+        <view class="order-bottom">
+          <text class="order-amount">¥{{item.total_amount}}</text>
+          <text class="order-status status-{{item.status}}">
+            {{item.status === 'pending' ? '待支付' : item.status === 'paid' ? '已支付' : '已取消'}}
+          </text>
+        </view>
+      </view>
+      <button wx:if="{{item.status === 'pending'}}" class="pay-btn" data-id="{{item.id}}" catchtap="onPay">支付</button>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && orders.length === 0}}">暂无订单</view>
+  <view class="loading-more" wx:if="{{loading}}">加载中...</view>
+</view>

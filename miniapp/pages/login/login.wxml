@@ -1,0 +1,15 @@
+<!--pages/login/login.wxml-->
+<view class="container">
+  <view class="logo-area">
+    <text class="logo">🎫</text>
+    <text class="app-name">Ticket Hunter</text>
+    <text class="subtitle">全国文体旅演出票·一触即达</text>
+  </view>
+
+  <view class="login-area">
+    <button class="mock-login-btn" bindtap="onMockLogin" loading="{{loading}}" disabled="{{loading}}">
+      {{loading ? '登录中...' : '🚀 一键登录 (开发模式)'}}
+    </button>
+    <text class="hint">MVP阶段使用模拟登录</text>
+  </view>
+</view>
